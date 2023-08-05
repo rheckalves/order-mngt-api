@@ -5,6 +5,12 @@ import Order from './order/Product';
 
 @Injectable()
 export class AppService {
+  getOrder(id: string) {
+    throw new Error('Method not implemented.');
+  }
+  createOrder() {
+    throw new Error('Method not implemented.');
+  }
   constructor(private readonly httpService: HttpService) {}
 
   getHello(): string {
