@@ -15,7 +15,7 @@ export class AuthService {
   }
   async login(data: LoginDto) {
     const payload: AxiosRequestConfig = {
-      url: 'http://localhost:8080/rest/V1/integration/customer/token',
+      url: '/rest/V1/integration/customer/token',
       method: 'POST',
       data,
     };
@@ -34,7 +34,7 @@ export class AuthService {
   async register(customerData: RegisterDto) {
     const { password, ...others } = customerData;
     const payload: AxiosRequestConfig = {
-      url: 'http://localhost:8080/rest/V1/customers',
+      url: '/rest/V1/customers',
       method: 'POST',
       data: { customer: others, password },
     };
@@ -44,6 +44,26 @@ export class AuthService {
     } catch (error) {
       this.logger.error(error?.response?.data?.message);
       throw new BadRequestException('Error on register');
+    }
+  }
+
+  async getUser(token: string) {
+    const payload: AxiosRequestConfig = {
+      url: '/rest/V1/customers/me',
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    try {
+      const { data } = await this.axiosClient.request<{
+        id: number;
+        email: string;
+      }>(payload);
+      return data;
+    } catch (error) {
+      this.logger.error(error?.response?.data?.message);
+      throw new BadRequestException('Error on get user info');
     }
   }
 }
