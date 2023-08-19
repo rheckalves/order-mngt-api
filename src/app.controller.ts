@@ -1,13 +1,14 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import OrderDto from './OrderDto';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post('order')
-  async createOrder() {
-    return await this.appService.createOrder();
+  async createOrder(@Body() orderDto: OrderDto) {
+    return await this.appService.createOrder(orderDto);
   }
 
   @Get('order/:id')
