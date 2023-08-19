@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post('order')
-  async login() {
+  async createOrder() {
     return await this.appService.createOrder();
   }
 

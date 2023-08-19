@@ -5,16 +5,17 @@ import Order from './order/Product';
 
 @Injectable()
 export class AppService {
+  constructor(private readonly httpService: HttpService) {}
+
   getOrder(id: string) {
     throw new Error('Method not implemented.');
   }
-  createOrder() {
-    throw new Error('Method not implemented.');
-  }
-  constructor(private readonly httpService: HttpService) {}
 
-  getHello(): string {
-    return 'Hello World!';
+  createOrder() {
+    return {
+      id: '1234567890',
+      status: 'pending',
+    };
   }
 
   findAll(): Promise<AxiosResponse<Order[]>> {
