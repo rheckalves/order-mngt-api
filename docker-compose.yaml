@@ -16,7 +16,7 @@ services:
       timeout: 20s
       retries: 10
     networks:
-      - ordermgmnt
+      - order-mngt
 
   phpmyadmin:
     image: phpmyadmin:5
@@ -30,7 +30,7 @@ services:
       - PMA_HOST=mysql
       - PMA_USER=magento
     networks:
-      - ordermgmnt
+      - order-mngt
 
   magento:
     image: docker.io/bitnami/magento:2
@@ -58,7 +58,7 @@ services:
       elasticsearch:
         condition: service_healthy
     networks:
-      - ordermgmnt
+      - order-mngt
 
   elasticsearch:
     image: docker.io/bitnami/elasticsearch:7.17.10
@@ -78,7 +78,7 @@ services:
         timeout: 30s
         retries: 5
     networks:
-      - ordermgmnt
+      - order-mngt
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.17.10
@@ -97,7 +97,7 @@ services:
       timeout: 30s
       retries: 5
     networks:
-      - ordermgmnt
+      - order-mngt
 
   postgresql:
     image: "postgres:14"
@@ -115,7 +115,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - ordermgmnt
+      - order-mngt
 
   pgadmin:
     image: dpage/pgadmin4
@@ -128,7 +128,7 @@ services:
     ports:
       - '8585:80'
     networks:
-      - ordermgmnt
+      - order-mngt
       
   # redis:
   #   image: redis
@@ -139,7 +139,7 @@ services:
   #     test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
 
 networks:
-  ordermgmnt:
+  order-mngt:
     driver: bridge
 
 volumes:
