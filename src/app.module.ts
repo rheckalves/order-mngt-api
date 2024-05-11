@@ -1,16 +1,15 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { HttpModule } from '@nestjs/axios';
+import { OrderService } from './order/order.service';
+import { MagentoController } from './magento/magento.controller';
+
+import { OrderController } from './order/order.controller';
+import { MagentoService } from './magento/magento.service';
 
 @Module({
-  imports: [
-    HttpModule.register({
-      timeout: 5000,
-      maxRedirects: 5,
-    }),
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [HttpModule],
+  controllers: [OrderController, MagentoController],
+  providers: [OrderService, MagentoService],
 })
 export class AppModule {}

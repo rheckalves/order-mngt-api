@@ -26,12 +26,17 @@
     "release": "release-it"
   },
   "dependencies": {
-    "@nestjs/axios": "^3.0.0",
+    "@nestjs/axios": "^3.0.2",
+    "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
-    "@nestjs/swagger": "^7.1.8",
+    "@nestjs/swagger": "^7.3.1",
     "axios": "^1.4.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },
