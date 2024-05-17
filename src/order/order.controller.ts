@@ -65,8 +65,15 @@ export class OrderController {
   @ApiResponse({ status: 404, description: 'Order not found.' })
   async getOrder(
     @Param('id') id: string,
-    @Headers('Authorization') token: string,
+    @Headers('Authorization') authorizationHeader: string,
   ) {
+    if (!authorizationHeader) {
+      throw new UnauthorizedException('Authorization header is missing');
+    }
+    const [bearer, token] = authorizationHeader.split(' ');
+    if (bearer !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Invalid authorization header');
+    }
     return this.orderService.getOrder(id, token);
   }
 }

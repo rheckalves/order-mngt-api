@@ -1,19 +1,25 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AxiosError, AxiosResponse } from 'axios';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class MagentoService {
+  private readonly logger = new Logger(MagentoService.name);
+
   constructor(private httpService: HttpService) {}
 
   async createCart(token: string): Promise<string> {
-    const url = 'http://magento.local/rest/V1/carts/mine';
-    const headers = { Authorization: token };
-    const response: AxiosResponse = await this.httpService
-      .post(url, {}, { headers })
-      .toPromise();
-    return response.data;
+    const url = 'http://localhost:8080/rest/V1/carts/mine';
+    const headers = { Authorization: `Bearer ${token}` };
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(url, {}, { headers }),
+      );
+      this.logger.log('Carrinho criado:', response.data);
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'createCart');
+    }
   }
 
   async addItemToCart(
@@ -22,8 +28,8 @@ export class MagentoService {
     sku: string,
     quantity: number,
   ): Promise<any> {
-    const url = `http://magento.local/rest/V1/carts/mine/items`;
-    const headers = { Authorization: token };
+    const url = `http://localhost:8080/rest/V1/carts/mine/items`;
+    const headers = { Authorization: `Bearer ${token}` };
     const body = {
       cartItem: {
         sku: sku,
@@ -31,24 +37,129 @@ export class MagentoService {
         quote_id: cartId,
       },
     };
-    return this.httpService.post(url, body, { headers }).toPromise();
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(url, body, { headers }),
+      );
+      this.logger.log('Item adicionado ao carrinho:', response.data);
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'addItemToCart');
+    }
   }
 
-  async getOrderById(id: string, token: string): Promise<any> {
-    const url = `http://magento.local/rest/V1/orders/${id}`;
+  async getUserDetails(token: string): Promise<any> {
+    const url = `http://localhost:8080/rest/V1/customers/me`;
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const response = await lastValueFrom(
         this.httpService.get(url, { headers }),
       );
+      this.logger.log('Detalhes do usuário:', response.data);
       return response.data;
     } catch (error) {
-      throw new Error('Failed to retrieve order: ' + error.message);
+      this.handleError(error, 'getUserDetails');
+    }
+  }
+
+  async setShippingMethod(
+    token: string,
+    cartId: string,
+    address: any,
+  ): Promise<any> {
+    const url = `http://localhost:8080/rest/V1/carts/mine/shipping-information`;
+    const headers = { Authorization: `Bearer ${token}` };
+    const body = {
+      addressInformation: {
+        shipping_address: {
+          region: address.region.region,
+          region_id: address.region_id,
+          country_id: address.country_id,
+          street: address.street,
+          telephone: address.telephone,
+          postcode: address.postcode,
+          city: address.city,
+          firstname: address.firstname,
+          lastname: address.lastname,
+        },
+        billing_address: {
+          region: address.region.region,
+          region_id: address.region_id,
+          country_id: address.country_id,
+          street: address.street,
+          telephone: address.telephone,
+          postcode: address.postcode,
+          city: address.city,
+          firstname: address.firstname,
+          lastname: address.lastname,
+        },
+        shipping_method_code: 'flatrate',
+        shipping_carrier_code: 'flatrate',
+      },
+    };
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(url, body, { headers }),
+      );
+      this.logger.log('Método de envio definido:', response.data);
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'setShippingMethod');
+    }
+  }
+
+  async setPaymentMethod(token: string, paymentMethod: any): Promise<any> {
+    const url = `http://localhost:8080/rest/V1/carts/mine/payment-information`;
+    const headers = { Authorization: `Bearer ${token}` };
+    const body = {
+      paymentMethod: {
+        method: paymentMethod.method,
+      },
+    };
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(url, body, { headers }),
+      );
+      this.logger.log('Método de pagamento definido:', response.data);
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'setPaymentMethod');
+    }
+  }
+
+  async placeOrder(token: string): Promise<any> {
+    const url = `http://localhost:8080/rest/V1/carts/mine/order`;
+    const headers = { Authorization: `Bearer ${token}` };
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService.put(url, {}, { headers }),
+      );
+      this.logger.log('Pedido realizado:', response.data);
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'placeOrder');
+    }
+  }
+
+  async getOrderById(id: string, token: string): Promise<any> {
+    const url = `http://localhost:8080/rest/V1/orders/${id}`;
+    const headers = { Authorization: `Bearer ${token}` };
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get(url, { headers }),
+      );
+      this.logger.log('Detalhes do pedido:', response.data);
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'getOrderById');
     }
   }
 
   async createProduct(productData: any, accessToken: string): Promise<any> {
-    const url = `http://your-magento-site.com/rest/V1/products`;
+    const url = `http://localhost:8080/rest/V1/products`;
 
     try {
       const response = await lastValueFrom(
@@ -61,10 +172,22 @@ export class MagentoService {
       );
       return response.data;
     } catch (error) {
-      const axiosError = error as AxiosError;
+      this.handleError(error, 'createProduct');
+    }
+  }
+
+  private handleError(error: any, methodName: string): void {
+    if (error.response) {
+      this.logger.error(
+        `${methodName} - Erro na resposta da API:`,
+        error.response.data,
+      );
+      throw new HttpException(error.response.data, error.response.status);
+    } else {
+      this.logger.error(`${methodName} - Erro na requisição:`, error.message);
       throw new HttpException(
-        'Failed to create product: ' + axiosError.message,
-        HttpStatus.BAD_REQUEST,
+        'Erro na comunicação com a API Magento',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
