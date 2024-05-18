@@ -24,7 +24,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('WebShop API: Order Mngt API')
+    .setTitle('Order Mngt API')
     .setDescription('Manage orders and interactions with Magento backend')
     .setVersion('1.0')
     .addBearerAuth(
