@@ -177,18 +177,36 @@ export class MagentoService {
   }
 
   private handleError(error: any, methodName: string): void {
+    let errorMessage = `Erro desconhecido`;
+    let errorDetails = {};
+
     if (error.response) {
-      this.logger.error(
-        `${methodName} - Erro na resposta da API:`,
-        error.response.data,
-      );
-      throw new HttpException(error.response.data, error.response.status);
+        errorMessage = `${methodName} - Erro na resposta da API: ${error.response.statusText}`;
+        errorDetails = {
+            status: error.response.status,
+            data: error.response.data,
+            headers: error.response.headers
+        };
+        this.logger.error(errorMessage, errorDetails);
+        throw new HttpException(error.response.data, error.response.status);
+    } else if (error.request) {
+        errorMessage = `${methodName} - Erro ao enviar a requisição para a API Magento`;
+        errorDetails = {
+            method: error.request.method,
+            url: error.request.path,
+            headers: error.request._header
+        };
+        this.logger.error(errorMessage, errorDetails);
+        throw new HttpException(
+            'Falha ao comunicar com a API Magento, sem resposta do servidor.',
+            HttpStatus.GATEWAY_TIMEOUT
+        );
     } else {
-      this.logger.error(`${methodName} - Erro na requisição:`, error.message);
-      throw new HttpException(
-        'Erro na comunicação com a API Magento',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+        this.logger.error(`${methodName} - Erro na requisição: ${error.message}`);
+        throw new HttpException(
+            'Erro na comunicação com a API Magento',
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
   }
 }
