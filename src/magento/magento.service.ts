@@ -5,11 +5,14 @@ import { lastValueFrom } from 'rxjs';
 @Injectable()
 export class MagentoService {
   private readonly logger = new Logger(MagentoService.name);
+  private readonly magentoUrl: string;
 
-  constructor(private httpService: HttpService) {}
+  constructor(private httpService: HttpService) {
+    this.magentoUrl = process.env.MAGENTO_URL;
+  }
 
   async createCart(token: string): Promise<string> {
-    const url = `https://localhost:8443/rest/V1/carts/mine`;
+    const url = `${this.magentoUrl}/rest/V1/carts/mine`;
     const headers = { Authorization: `Bearer ${token}` };
 
     this.logger.log(`Iniciando a criação do carrinho com token: ${token}`);
@@ -36,7 +39,7 @@ export class MagentoService {
     sku: string,
     quantity: number,
   ): Promise<any> {
-    const url = `https://localhost:8443/rest/V1/carts/mine/items`;
+    const url = `${this.magentoUrl}/rest/V1/carts/mine/items`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
       cartItem: {
@@ -59,7 +62,7 @@ export class MagentoService {
   }
 
   async getUserDetails(token: string): Promise<any> {
-    const url = `https://localhost:8443/rest/V1/customers/me`;
+    const url = `${this.magentoUrl}/rest/V1/customers/me`;
     const headers = { Authorization: `Bearer ${token}` };
 
     try {
@@ -79,7 +82,7 @@ export class MagentoService {
     cartId: string,
     address: any,
   ): Promise<any> {
-    const url = `https://localhost:8443/rest/V1/carts/mine/shipping-information`;
+    const url = `${this.magentoUrl}/rest/V1/carts/mine/shipping-information`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
       addressInformation: {
@@ -103,7 +106,7 @@ export class MagentoService {
   }
 
   async setPaymentMethod(token: string, paymentMethod: any): Promise<any> {
-    const url = `https://localhost:8443/rest/V1/carts/mine/payment-information`;
+    const url = `${this.magentoUrl}/rest/V1/carts/mine/payment-information`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = { paymentMethod };
 
@@ -120,7 +123,7 @@ export class MagentoService {
   }
 
   async placeOrder(token: string): Promise<any> {
-    const url = `https://localhost:8443/rest/V1/carts/mine/order`;
+    const url = `${this.magentoUrl}/rest/V1/carts/mine/order`;
     const headers = { Authorization: `Bearer ${token}` };
 
     try {
@@ -136,7 +139,7 @@ export class MagentoService {
   }
 
   async getOrderById(id: string, token: string): Promise<any> {
-    const url = `https://localhost:8443/rest/V1/orders/${id}`;
+    const url = `${this.magentoUrl}/rest/V1/orders/${id}`;
     const headers = { Authorization: `Bearer ${token}` };
 
     try {
@@ -152,7 +155,7 @@ export class MagentoService {
   }
 
   async createProduct(productData: any, accessToken: string): Promise<any> {
-    const url = `https://localhost:8443/rest/V1/products`;
+    const url = `${this.magentoUrl}/rest/V1/products`;
     const headers = {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
