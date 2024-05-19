@@ -9,16 +9,21 @@ export class MagentoService {
   constructor(private httpService: HttpService) {}
 
   async createCart(token: string): Promise<string> {
-    const url = 'http://localhost:8080/rest/V1/carts/mine';
+    const url = `http://localhost:8080/rest/V1/carts/mine`;
     const headers = { Authorization: `Bearer ${token}` };
+
+    this.logger.log(`Iniciando a criação do carrinho com token: ${token}`);  // Log do início da operação
+
     try {
       const response = await lastValueFrom(
         this.httpService.post(url, {}, { headers }),
       );
-      this.logger.log('Carrinho criado:', response.data);
+
+      this.logger.log(`Carrinho criado com sucesso: ${JSON.stringify(response.data)}`); // Log do sucesso com dados da resposta
       return response.data;
     } catch (error) {
-      this.handleError(error, 'createCart');
+      this.logger.error(`Erro ao criar o carrinho, URL: ${url}`);  // Log básico do erro
+      this.handleError(error, 'createCart'); // Chamada para método de tratamento de erro
     }
   }
 
@@ -177,36 +182,16 @@ export class MagentoService {
   }
 
   private handleError(error: any, methodName: string): void {
-    let errorMessage = `Erro desconhecido`;
-    let errorDetails = {};
-
+    this.logger.error(`${methodName} - Detalhes do erro:`, error);
     if (error.response) {
-        errorMessage = `${methodName} - Erro na resposta da API: ${error.response.statusText}`;
-        errorDetails = {
-            status: error.response.status,
-            data: error.response.data,
-            headers: error.response.headers
-        };
-        this.logger.error(errorMessage, errorDetails);
-        throw new HttpException(error.response.data, error.response.status);
+      this.logger.error(`${methodName} - Erro na resposta da API: Status ${error.response.status}`, error.response.data);
+      throw new HttpException(error.response.data, error.response.status);
     } else if (error.request) {
-        errorMessage = `${methodName} - Erro ao enviar a requisição para a API Magento`;
-        errorDetails = {
-            method: error.request.method,
-            url: error.request.path,
-            headers: error.request._header
-        };
-        this.logger.error(errorMessage, errorDetails);
-        throw new HttpException(
-            'Falha ao comunicar com a API Magento, sem resposta do servidor.',
-            HttpStatus.GATEWAY_TIMEOUT
-        );
+      this.logger.error(`${methodName} - Nenhuma resposta recebida, verifique a conectividade ou a configuração do servidor.`);
+      throw new HttpException('Falha ao comunicar com a API Magento, sem resposta do servidor.', HttpStatus.GATEWAY_TIMEOUT);
     } else {
-        this.logger.error(`${methodName} - Erro na requisição: ${error.message}`);
-        throw new HttpException(
-            'Erro na comunicação com a API Magento',
-            HttpStatus.INTERNAL_SERVER_ERROR
-        );
+      this.logger.error(`${methodName} - Erro na requisição: ${error.message}`);
+      throw new HttpException('Erro na comunicação com a API Magento', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
