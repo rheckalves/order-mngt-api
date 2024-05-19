@@ -173,24 +173,6 @@ export class MagentoService {
     }
   }
 
-  async createProduct(productData: any, accessToken: string): Promise<any> {
-    const url = `${this.magentoUrl}/rest/V1/products`;
-    const headers = {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    };
-
-    try {
-      const response = await lastValueFrom(
-        this.httpService.post(url, productData, { headers }),
-      );
-
-      return response.data;
-    } catch (error) {
-      this.handleError(error, 'createProduct');
-    }
-  }
-
   private handleError(error: any, methodName: string): void {
     this.logger.error(`${methodName} - Detalhes do erro:`, error);
     if (error.response) {
