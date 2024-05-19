@@ -76,7 +76,6 @@ export class MagentoService {
       this.handleError(error, 'getUserDetails');
     }
   }
-
   async setShippingMethod(
     token: string,
     cartId: string,
@@ -86,8 +85,28 @@ export class MagentoService {
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
       addressInformation: {
-        shipping_address: address,
-        billing_address: address,
+        shipping_address: {
+          region: address.region.region,
+          region_id: address.region_id,
+          country_id: address.country_id,
+          street: address.street,
+          telephone: address.telephone,
+          postcode: address.postcode,
+          city: address.city,
+          firstname: address.firstname,
+          lastname: address.lastname,
+        },
+        billing_address: {
+          region: address.region.region,
+          region_id: address.region_id,
+          country_id: address.country_id,
+          street: address.street,
+          telephone: address.telephone,
+          postcode: address.postcode,
+          city: address.city,
+          firstname: address.firstname,
+          lastname: address.lastname,
+        },
         shipping_method_code: 'flatrate',
         shipping_carrier_code: 'flatrate',
       },
