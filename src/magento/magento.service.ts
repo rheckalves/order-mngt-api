@@ -20,7 +20,9 @@ export class MagentoService {
         this.httpService.post(url, {}, { headers }),
       );
 
-      this.logger.log(`Carrinho criado com sucesso: ${JSON.stringify(response.data)}`);
+      this.logger.log(
+        `Carrinho criado com sucesso: ${JSON.stringify(response.data)}`,
+      );
       return response.data;
     } catch (error) {
       this.logger.error(`Erro ao criar o carrinho, URL: ${url}`);
@@ -28,7 +30,12 @@ export class MagentoService {
     }
   }
 
-  async addItemToCart(token: string, cartId: string, sku: string, quantity: number): Promise<any> {
+  async addItemToCart(
+    token: string,
+    cartId: string,
+    sku: string,
+    quantity: number,
+  ): Promise<any> {
     const url = `http://localhost:8080/rest/V1/carts/mine/items`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
@@ -67,7 +74,11 @@ export class MagentoService {
     }
   }
 
-  async setShippingMethod(token: string, cartId: string, address: any): Promise<any> {
+  async setShippingMethod(
+    token: string,
+    cartId: string,
+    address: any,
+  ): Promise<any> {
     const url = `http://localhost:8080/rest/V1/carts/mine/shipping-information`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
@@ -161,14 +172,25 @@ export class MagentoService {
   private handleError(error: any, methodName: string): void {
     this.logger.error(`${methodName} - Detalhes do erro:`, error);
     if (error.response) {
-      this.logger.error(`${methodName} - Erro na resposta da API: Status ${error.response.status}`, error.response.data);
+      this.logger.error(
+        `${methodName} - Erro na resposta da API: Status ${error.response.status}`,
+        error.response.data,
+      );
       throw new HttpException(error.response.data, error.response.status);
     } else if (error.request) {
-      this.logger.error(`${methodName} - Nenhuma resposta recebida, verifique a conectividade ou a configuração do servidor.`);
-      throw new HttpException('Falha ao comunicar com a API Magento, sem resposta do servidor.', HttpStatus.GATEWAY_TIMEOUT);
+      this.logger.error(
+        `${methodName} - Nenhuma resposta recebida, verifique a conectividade ou a configuração do servidor.`,
+      );
+      throw new HttpException(
+        'Falha ao comunicar com a API Magento, sem resposta do servidor.',
+        HttpStatus.GATEWAY_TIMEOUT,
+      );
     } else {
       this.logger.error(`${methodName} - Erro na requisição: ${error.message}`);
-      throw new HttpException('Erro na comunicação com a API Magento', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Erro na comunicação com a API Magento',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
