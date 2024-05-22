@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
+import { AddressDTO } from '../order/dto/create-order.dto';
 
 @Injectable()
 export class MagentoService {
@@ -39,6 +40,11 @@ export class MagentoService {
     sku: string,
     quantity: number,
   ): Promise<any> {
+    // Pré-condição: Verificar se os parâmetros são válidos
+    if (!token || !cartId || !sku || !quantity) {
+      throw new HttpException('Invalid parameters', HttpStatus.BAD_REQUEST);
+    }
+
     const url = `${this.magentoUrl}/rest/V1/carts/mine/items`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
@@ -62,6 +68,11 @@ export class MagentoService {
   }
 
   async getUserDetails(token: string): Promise<any> {
+    // Pré-condição: Verificar se o token é válido
+    if (!token) {
+      throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+    }
+
     const url = `${this.magentoUrl}/rest/V1/customers/me`;
     const headers = { Authorization: `Bearer ${token}` };
 
@@ -76,39 +87,55 @@ export class MagentoService {
       this.handleError(error, 'getUserDetails');
     }
   }
+
   async setShippingMethod(
     token: string,
     cartId: string,
-    address: any,
+    billingAddress: AddressDTO,
+    shippingAddress: AddressDTO,
+    shippingMethodCode: string,
+    shippingCarrierCode: string,
   ): Promise<any> {
+    // Pré-condição: Verificar se os parâmetros são válidos
+    if (
+      !token ||
+      !cartId ||
+      !billingAddress ||
+      !shippingAddress ||
+      !shippingMethodCode ||
+      !shippingCarrierCode
+    ) {
+      throw new HttpException('Invalid parameters', HttpStatus.BAD_REQUEST);
+    }
+
     const url = `${this.magentoUrl}/rest/V1/carts/mine/shipping-information`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
       addressInformation: {
         shipping_address: {
-          region: address.region.region,
-          region_id: address.region_id,
-          country_id: address.country_id,
-          street: address.street,
-          telephone: address.telephone,
-          postcode: address.postcode,
-          city: address.city,
-          firstname: address.firstname,
-          lastname: address.lastname,
+          region: shippingAddress.region,
+          region_id: shippingAddress.region_id,
+          country_id: shippingAddress.country_id,
+          street: shippingAddress.street,
+          telephone: shippingAddress.telephone,
+          postcode: shippingAddress.postcode,
+          city: shippingAddress.city,
+          firstname: shippingAddress.firstname,
+          lastname: shippingAddress.lastname,
         },
         billing_address: {
-          region: address.region.region,
-          region_id: address.region_id,
-          country_id: address.country_id,
-          street: address.street,
-          telephone: address.telephone,
-          postcode: address.postcode,
-          city: address.city,
-          firstname: address.firstname,
-          lastname: address.lastname,
+          region: billingAddress.region,
+          region_id: billingAddress.region_id,
+          country_id: billingAddress.country_id,
+          street: billingAddress.street,
+          telephone: billingAddress.telephone,
+          postcode: billingAddress.postcode,
+          city: billingAddress.city,
+          firstname: billingAddress.firstname,
+          lastname: billingAddress.lastname,
         },
-        shipping_method_code: 'flatrate',
-        shipping_carrier_code: 'flatrate',
+        shipping_method_code: shippingMethodCode,
+        shipping_carrier_code: shippingCarrierCode,
       },
     };
 
@@ -125,6 +152,11 @@ export class MagentoService {
   }
 
   async setPaymentMethod(token: string, paymentMethod: any): Promise<any> {
+    // Pré-condição: Verificar se os parâmetros são válidos
+    if (!token || !paymentMethod) {
+      throw new HttpException('Invalid parameters', HttpStatus.BAD_REQUEST);
+    }
+
     const url = `${this.magentoUrl}/rest/V1/carts/mine/payment-information`;
     const headers = { Authorization: `Bearer ${token}` };
     const body = { paymentMethod };
@@ -142,6 +174,11 @@ export class MagentoService {
   }
 
   async placeOrder(token: string): Promise<any> {
+    // Pré-condição: Verificar se o token é válido
+    if (!token) {
+      throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+    }
+
     const url = `${this.magentoUrl}/rest/V1/carts/mine/order`;
     const headers = { Authorization: `Bearer ${token}` };
 
@@ -158,6 +195,11 @@ export class MagentoService {
   }
 
   async getOrderById(id: string, token: string): Promise<any> {
+    // Pré-condição: Verificar se os parâmetros são válidos
+    if (!id || !token) {
+      throw new HttpException('Invalid parameters', HttpStatus.BAD_REQUEST);
+    }
+
     const url = `${this.magentoUrl}/rest/V1/orders/${id}`;
     const headers = { Authorization: `Bearer ${token}` };
 

@@ -6,9 +6,11 @@ import {
   Post,
   Headers,
   UnauthorizedException,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { OrderDto } from './dto/OrderDto';
+import { CreateOrderDTO } from './dto/create-order.dto';
 import {
   ApiTags,
   ApiResponse,
@@ -25,17 +27,18 @@ export class OrderController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new order' })
-  @ApiBody({ type: OrderDto, description: 'Order data' })
+  @ApiBody({ type: CreateOrderDTO, description: 'Order data' })
   @ApiResponse({
     status: 201,
     description: 'Order created successfully.',
-    type: OrderDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid order data provided.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async createOrder(
-    @Body() orderDto: OrderDto,
+    @Body() orderDto: CreateOrderDTO,
     @Headers('authorization') authorizationHeader: string,
   ) {
+    // Pré-condição: Validação do cabeçalho de autorização
     if (!authorizationHeader) {
       throw new UnauthorizedException('Authorization header is missing');
     }
@@ -43,7 +46,17 @@ export class OrderController {
     if (bearer !== 'Bearer' || !token) {
       throw new UnauthorizedException('Invalid authorization header');
     }
-    return this.orderService.createOrder(orderDto, token);
+
+    // Pós-condição: Verificação do resultado da criação do pedido
+    try {
+      const order = await this.orderService.createOrder(orderDto, token);
+      if (!order) {
+        throw new BadRequestException('Failed to create order');
+      }
+      return order;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Get(':id')
@@ -60,13 +73,15 @@ export class OrderController {
   @ApiResponse({
     status: 200,
     description: 'Order retrieved successfully.',
-    type: OrderDto,
+    type: CreateOrderDTO,
   })
   @ApiResponse({ status: 404, description: 'Order not found.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getOrder(
     @Param('id') id: string,
     @Headers('Authorization') authorizationHeader: string,
   ) {
+    // Pré-condição: Validação do cabeçalho de autorização
     if (!authorizationHeader) {
       throw new UnauthorizedException('Authorization header is missing');
     }
@@ -74,6 +89,12 @@ export class OrderController {
     if (bearer !== 'Bearer' || !token) {
       throw new UnauthorizedException('Invalid authorization header');
     }
-    return this.orderService.getOrder(id, token);
+
+    // Pós-condição: Verificação do resultado da recuperação do pedido
+    const order = await this.orderService.getOrder(id, token);
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    return order;
   }
 }
