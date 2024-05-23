@@ -14,7 +14,6 @@ services:
     ports:
       - 3002:3002
     environment:
-      - SEARCH_API_URL=http://search-api:3001
       - MAGENTO_URL=http://magento:8080
       - ELASTIC_APM_ENABLED=true
       - ELASTIC_APM_SERVICE_NAME=order-mngt-api
@@ -22,6 +21,7 @@ services:
       - ELASTIC_APM_ENVIRONMENT=development
     depends_on:
       - magento
+      - apm
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:3002 || exit 1"]
       interval: 30s
@@ -33,9 +33,9 @@ services:
       - co.elastic.logs/json.message_key=message
       - co.elastic.logs/json.overwrite_keys=true
       - co.elastic.metrics/enabled=false
-    command: "sh -c '/entrypoint.sh && npm run start:dev'"
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 512M
+    command: "sh -c '/entrypoint.sh && npm run start:dev'"

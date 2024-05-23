@@ -1,16 +1,12 @@
 FROM node:20.12.1 AS development
 
-RUN curl -LOs https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.17.19-amd64.deb && \
-    dpkg -i metricbeat-7.17.19-amd64.deb && \
-    rm metricbeat-7.17.19-amd64.deb
-
+RUN curl -LOs https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.17.19-amd64.deb && dpkg -i metricbeat-7.17.19-amd64.deb && rm metricbeat-7.17.19-amd64.deb
 COPY --chown=root:metricbeat elastic/metricbeat.yml /usr/share/metricbeat/metricbeat.yml
 
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --silent --legacy-peer-deps
 COPY . .
-
 COPY elastic/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
