@@ -4,24 +4,24 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { MagentoService } from '../magento/magento.service';
-import { CreateOrderDTO } from './dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrderService {
   constructor(private magentoService: MagentoService) {}
 
   async createOrder(
-    createOrderDTO: CreateOrderDTO,
+    createOrderDto: CreateOrderDto,
     token: string,
   ): Promise<any> {
     // Validação da flag de endereço
-    if (!createOrderDTO.useDefaultAddress) {
-      if (!createOrderDTO.billing_address) {
+    if (!createOrderDto.useDefaultAddress) {
+      if (!createOrderDto.billingAddress) {
         throw new BadRequestException(
           'Billing address is required when useDefaultAddress is false or not provided',
         );
       }
-      if (!createOrderDTO.shipping_address) {
+      if (!createOrderDto.shippingAddress) {
         throw new BadRequestException(
           'Shipping address is required when useDefaultAddress is false or not provided',
         );
@@ -33,22 +33,22 @@ export class OrderService {
       throw new BadRequestException('Failed to create cart');
     }
 
-    for (const item of createOrderDTO.items) {
+    for (const item of createOrderDto.items) {
       const addItemResponse = await this.magentoService.addItemToCart(
         token,
         cartId,
         item.sku,
-        item.qty,
+        item.quantity,
       );
       if (!addItemResponse) {
         throw new BadRequestException('Failed to add item to cart');
       }
     }
 
-    let billingAddress = createOrderDTO.billing_address;
-    let shippingAddress = createOrderDTO.shipping_address;
+    let billingAddress = createOrderDto.billingAddress;
+    let shippingAddress = createOrderDto.shippingAddress;
 
-    if (createOrderDTO.useDefaultAddress) {
+    if (createOrderDto.useDefaultAddress) {
       const userDetails = await this.magentoService.getUserDetails(token);
       if (!userDetails.addresses || userDetails.addresses.length === 0) {
         throw new BadRequestException('No default addresses found for user.');
@@ -83,8 +83,8 @@ export class OrderService {
         cartId,
         billingAddress,
         shippingAddress,
-        createOrderDTO.shipping_method.method_code,
-        createOrderDTO.shipping_method.carrier_code,
+        createOrderDto.shippingMethod.methodCode,
+        createOrderDto.shippingMethod.carrierCode,
       );
     if (!setShippingMethodResponse) {
       throw new BadRequestException('Failed to set shipping method');
@@ -92,7 +92,7 @@ export class OrderService {
 
     const setPaymentMethodResponse = await this.magentoService.setPaymentMethod(
       token,
-      { method: createOrderDTO.payment_method.method },
+      { method: createOrderDto.paymentMethod.method },
     );
     if (!setPaymentMethodResponse) {
       throw new BadRequestException('Failed to set payment method');

@@ -10,7 +10,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDTO } from './dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import {
   ApiTags,
   ApiResponse,
@@ -27,7 +27,7 @@ export class OrderController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new order' })
-  @ApiBody({ type: CreateOrderDTO, description: 'Order data' })
+  @ApiBody({ type: CreateOrderDto, description: 'Order data' })
   @ApiResponse({
     status: 201,
     description: 'Order created successfully.',
@@ -35,8 +35,8 @@ export class OrderController {
   @ApiResponse({ status: 400, description: 'Invalid order data provided.' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async createOrder(
-    @Body() orderDto: CreateOrderDTO,
-    @Headers('authorization') authorizationHeader: string,
+    @Body() orderDto: CreateOrderDto,
+    @Headers('Authorization') authorizationHeader: string,
   ) {
     // Pré-condição: Validação do cabeçalho de autorização
     if (!authorizationHeader) {
@@ -73,7 +73,7 @@ export class OrderController {
   @ApiResponse({
     status: 200,
     description: 'Order retrieved successfully.',
-    type: CreateOrderDTO,
+    type: CreateOrderDto,
   })
   @ApiResponse({ status: 404, description: 'Order not found.' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

@@ -13,16 +13,16 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class AddressDTO {
+export class AddressDto {
   @ApiProperty({ example: 'John', description: 'First name of the customer' })
   @IsString()
   @IsNotEmpty()
-  firstname: string;
+  firstName: string;
 
   @ApiProperty({ example: 'Doe', description: 'Last name of the customer' })
   @IsString()
   @IsNotEmpty()
-  lastname: string;
+  lastName: string;
 
   @ApiProperty({ example: '123 Main St', description: 'Street address' })
   @IsString()
@@ -42,17 +42,17 @@ export class AddressDTO {
   @ApiProperty({ example: '12', description: 'Region ID' })
   @IsNumber()
   @IsPositive()
-  region_id: number;
+  regionId: number;
 
   @ApiProperty({ example: '12345', description: 'Postal code' })
   @IsString()
   @IsNotEmpty()
-  postcode: string;
+  postCode: string;
 
   @ApiProperty({ example: 'US', description: 'Country code' })
   @IsString()
   @IsNotEmpty()
-  country_id: string;
+  countryId: string;
 
   @ApiProperty({ example: '555-555-5555', description: 'Telephone number' })
   @IsString()
@@ -60,11 +60,11 @@ export class AddressDTO {
   telephone: string;
 }
 
-class ItemDTO {
+class ItemDto {
   @ApiProperty({ example: 1, description: 'Product ID' })
   @IsNumber()
   @IsPositive()
-  product_id: number;
+  productId: number;
 
   @ApiProperty({ example: 'product-sku', description: 'Product SKU' })
   @IsString()
@@ -74,7 +74,7 @@ class ItemDTO {
   @ApiProperty({ example: 1, description: 'Quantity of the product' })
   @IsNumber()
   @IsPositive()
-  qty: number;
+  quantity: number;
 
   @ApiProperty({ example: 100, description: 'Price of the product' })
   @IsNumber()
@@ -87,30 +87,30 @@ class ItemDTO {
   name: string;
 }
 
-class PaymentMethodDTO {
+class PaymentMethodDto {
   @ApiProperty({ example: 'checkmo', description: 'Payment method' })
   @IsString()
   @IsNotEmpty()
   method: string;
 }
 
-class ShippingMethodDTO {
+class ShippingMethodDto {
   @ApiProperty({ example: 'flatrate', description: 'Shipping method code' })
   @IsString()
   @IsNotEmpty()
-  method_code: string;
+  methodCode: string;
 
   @ApiProperty({ example: 'flatrate', description: 'Shipping carrier code' })
   @IsString()
   @IsNotEmpty()
-  carrier_code: string;
+  carrierCode: string;
 }
 
-export class CreateOrderDTO {
+export class CreateOrderDto {
   @ApiProperty({ example: 'USD', description: 'Currency ID' })
   @IsString()
   @IsNotEmpty()
-  currency_id: string;
+  currencyId: string;
 
   @ApiProperty({
     example: 'customer@example.com',
@@ -121,41 +121,41 @@ export class CreateOrderDTO {
   email: string;
 
   @ApiProperty({
-    type: AddressDTO,
+    type: AddressDto,
     description: 'Billing address',
     required: false,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => AddressDTO)
-  billing_address?: AddressDTO;
+  @Type(() => AddressDto)
+  billingAddress?: AddressDto;
 
   @ApiProperty({
-    type: AddressDTO,
+    type: AddressDto,
     description: 'Shipping address',
     required: false,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => AddressDTO)
-  shipping_address?: AddressDTO;
+  @Type(() => AddressDto)
+  shippingAddress?: AddressDto;
 
-  @ApiProperty({ type: [ItemDTO], description: 'List of items' })
+  @ApiProperty({ type: [ItemDto], description: 'List of items' })
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => ItemDTO)
-  items: ItemDTO[];
+  @Type(() => ItemDto)
+  items: ItemDto[];
 
-  @ApiProperty({ type: PaymentMethodDTO, description: 'Payment method' })
+  @ApiProperty({ type: PaymentMethodDto, description: 'Payment method' })
   @ValidateNested()
-  @Type(() => PaymentMethodDTO)
-  payment_method: PaymentMethodDTO;
+  @Type(() => PaymentMethodDto)
+  paymentMethod: PaymentMethodDto;
 
-  @ApiProperty({ type: ShippingMethodDTO, description: 'Shipping method' })
+  @ApiProperty({ type: ShippingMethodDto, description: 'Shipping method' })
   @ValidateNested()
-  @Type(() => ShippingMethodDTO)
-  shipping_method: ShippingMethodDTO;
+  @Type(() => ShippingMethodDto)
+  shippingMethod: ShippingMethodDto;
 
   @ApiProperty({
     example: true,

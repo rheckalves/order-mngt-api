@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
-import { AddressDTO } from '../order/dto/create-order.dto';
+import { AddressDto } from '../order/dto/create-order.dto';
 
 @Injectable()
 export class MagentoService {
@@ -51,7 +51,7 @@ export class MagentoService {
       cartItem: {
         sku: sku,
         qty: quantity,
-        quote_id: cartId,
+        quoteId: cartId,
       },
     };
 
@@ -91,8 +91,8 @@ export class MagentoService {
   async setShippingMethod(
     token: string,
     cartId: string,
-    billingAddress: AddressDTO,
-    shippingAddress: AddressDTO,
+    billingAddress: AddressDto,
+    shippingAddress: AddressDto,
     shippingMethodCode: string,
     shippingCarrierCode: string,
   ): Promise<any> {
@@ -112,30 +112,30 @@ export class MagentoService {
     const headers = { Authorization: `Bearer ${token}` };
     const body = {
       addressInformation: {
-        shipping_address: {
+        shippingAddress: {
           region: shippingAddress.region,
-          region_id: shippingAddress.region_id,
-          country_id: shippingAddress.country_id,
+          regionId: shippingAddress.regionId,
+          countryId: shippingAddress.countryId,
           street: shippingAddress.street,
           telephone: shippingAddress.telephone,
-          postcode: shippingAddress.postcode,
+          postcode: shippingAddress.postCode,
           city: shippingAddress.city,
-          firstname: shippingAddress.firstname,
-          lastname: shippingAddress.lastname,
+          firstname: shippingAddress.firstName,
+          lastname: shippingAddress.lastName,
         },
-        billing_address: {
+        billingAddress: {
           region: billingAddress.region,
-          region_id: billingAddress.region_id,
-          country_id: billingAddress.country_id,
+          regionId: billingAddress.regionId,
+          countryId: billingAddress.countryId,
           street: billingAddress.street,
           telephone: billingAddress.telephone,
-          postcode: billingAddress.postcode,
+          postcode: billingAddress.postCode,
           city: billingAddress.city,
-          firstname: billingAddress.firstname,
-          lastname: billingAddress.lastname,
+          firstname: billingAddress.firstName,
+          lastname: billingAddress.lastName,
         },
-        shipping_method_code: shippingMethodCode,
-        shipping_carrier_code: shippingCarrierCode,
+        shippingMethodCode: shippingMethodCode,
+        shippingCarrierCode: shippingCarrierCode,
       },
     };
 
