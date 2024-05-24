@@ -3,8 +3,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class MagentoService {
-  private magentoUrl = 'http://magento:8080';
-
+  private magentoUrl = process.env.MAGENTO_URL;
   async addItemToCart(
     token: string,
     cartId: string,

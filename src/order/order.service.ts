@@ -35,9 +35,6 @@ export class OrderService {
     }
     console.log('Cart created with ID:', cartId);
 
-    // pequeno atraso para garantir que o carrinho seja reconhecido //
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     for (const item of createOrderDto.items) {
       console.log('Adding item to cart:', item);
       const addItemResponse = await this.magentoService.addItemToCart(
