@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -18,11 +19,15 @@ import {
   ApiBody,
   ApiParam,
   ApiHeader,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
 @ApiTags('Orders')
+@ApiBearerAuth('access-token')
 @Controller('orders')
 export class OrderController {
+  private readonly logger = new Logger(OrderController.name);
+
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
@@ -38,16 +43,19 @@ export class OrderController {
     @Body() orderDto: CreateOrderDto,
     @Headers('Authorization') authorizationHeader: string,
   ) {
-    // Pré-condição: Validação do cabeçalho de autorização
+    this.logger.log(`Authorization header received: ${authorizationHeader}`);
+
     if (!authorizationHeader) {
+      this.logger.error('Authorization header is missing');
       throw new UnauthorizedException('Authorization header is missing');
     }
+
     const [bearer, token] = authorizationHeader.split(' ');
     if (bearer !== 'Bearer' || !token) {
+      this.logger.error('Invalid authorization header');
       throw new UnauthorizedException('Invalid authorization header');
     }
 
-    // Pós-condição: Verificação do resultado da criação do pedido
     try {
       const order = await this.orderService.createOrder(orderDto, token);
       if (!order) {
@@ -55,6 +63,7 @@ export class OrderController {
       }
       return order;
     } catch (error) {
+      this.logger.error(`Error creating order: ${error.message}`);
       throw new BadRequestException(error.message);
     }
   }
@@ -81,20 +90,28 @@ export class OrderController {
     @Param('id') id: string,
     @Headers('Authorization') authorizationHeader: string,
   ) {
-    // Pré-condição: Validação do cabeçalho de autorização
+    this.logger.log(`Authorization header received: ${authorizationHeader}`);
+
     if (!authorizationHeader) {
+      this.logger.error('Authorization header is missing');
       throw new UnauthorizedException('Authorization header is missing');
     }
+
     const [bearer, token] = authorizationHeader.split(' ');
     if (bearer !== 'Bearer' || !token) {
+      this.logger.error('Invalid authorization header');
       throw new UnauthorizedException('Invalid authorization header');
     }
 
-    // Pós-condição: Verificação do resultado da recuperação do pedido
-    const order = await this.orderService.getOrder(id, token);
-    if (!order) {
-      throw new NotFoundException('Order not found');
+    try {
+      const order = await this.orderService.getOrder(id, token);
+      if (!order) {
+        throw new NotFoundException('Order not found');
+      }
+      return order;
+    } catch (error) {
+      this.logger.error(`Error retrieving order: ${error.message}`);
+      throw new NotFoundException(error.message);
     }
-    return order;
   }
 }

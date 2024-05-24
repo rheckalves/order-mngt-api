@@ -53,7 +53,23 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+
+  SwaggerModule.setup('api-docs', app, document, {
+    swaggerOptions: {
+      authAction: {
+        defaultBearerAuth: {
+          name: 'Bearer',
+          schema: {
+            type: 'http',
+            in: 'header',
+            name: 'Authorization',
+            description: 'Enter JWT token',
+          },
+          value: 'Bearer <JWT>',
+        },
+      },
+    },
+  });
 
   const apmMiddleware = app.get(APM_MIDDLEWARE);
   const globalInterceptors = [

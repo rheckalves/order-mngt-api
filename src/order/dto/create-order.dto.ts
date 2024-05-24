@@ -17,17 +17,17 @@ export class AddressDto {
   @ApiProperty({ example: 'John', description: 'First name of the customer' })
   @IsString()
   @IsNotEmpty()
-  firstName: string;
+  firstname: string;
 
   @ApiProperty({ example: 'Doe', description: 'Last name of the customer' })
   @IsString()
   @IsNotEmpty()
-  lastName: string;
+  lastname: string;
 
-  @ApiProperty({ example: '123 Main St', description: 'Street address' })
-  @IsString()
-  @IsNotEmpty()
-  street: string;
+  @ApiProperty({ example: '["123 Main St"]', description: 'Street address' })
+  @IsArray()
+  @IsString({ each: true })
+  street: string[];
 
   @ApiProperty({ example: 'Anytown', description: 'City' })
   @IsString()
@@ -42,17 +42,17 @@ export class AddressDto {
   @ApiProperty({ example: '12', description: 'Region ID' })
   @IsNumber()
   @IsPositive()
-  regionId: number;
+  region_id: number;
 
   @ApiProperty({ example: '12345', description: 'Postal code' })
   @IsString()
   @IsNotEmpty()
-  postCode: string;
+  postcode: string;
 
   @ApiProperty({ example: 'US', description: 'Country code' })
   @IsString()
   @IsNotEmpty()
-  countryId: string;
+  country_id: string;
 
   @ApiProperty({ example: '555-555-5555', description: 'Telephone number' })
   @IsString()
@@ -64,7 +64,7 @@ class ItemDto {
   @ApiProperty({ example: 1, description: 'Product ID' })
   @IsNumber()
   @IsPositive()
-  productId: number;
+  product_id: number;
 
   @ApiProperty({ example: 'product-sku', description: 'Product SKU' })
   @IsString()
@@ -98,19 +98,19 @@ class ShippingMethodDto {
   @ApiProperty({ example: 'flatrate', description: 'Shipping method code' })
   @IsString()
   @IsNotEmpty()
-  methodCode: string;
+  method_code: string;
 
   @ApiProperty({ example: 'flatrate', description: 'Shipping carrier code' })
   @IsString()
   @IsNotEmpty()
-  carrierCode: string;
+  carrier_code: string;
 }
 
 export class CreateOrderDto {
   @ApiProperty({ example: 'USD', description: 'Currency ID' })
   @IsString()
   @IsNotEmpty()
-  currencyId: string;
+  currency_id: string;
 
   @ApiProperty({
     example: 'customer@example.com',
@@ -128,7 +128,7 @@ export class CreateOrderDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => AddressDto)
-  billingAddress?: AddressDto;
+  billing_address?: AddressDto;
 
   @ApiProperty({
     type: AddressDto,
@@ -138,7 +138,7 @@ export class CreateOrderDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => AddressDto)
-  shippingAddress?: AddressDto;
+  shipping_address?: AddressDto;
 
   @ApiProperty({ type: [ItemDto], description: 'List of items' })
   @IsArray()
@@ -150,12 +150,12 @@ export class CreateOrderDto {
   @ApiProperty({ type: PaymentMethodDto, description: 'Payment method' })
   @ValidateNested()
   @Type(() => PaymentMethodDto)
-  paymentMethod: PaymentMethodDto;
+  payment_method: PaymentMethodDto;
 
   @ApiProperty({ type: ShippingMethodDto, description: 'Shipping method' })
   @ValidateNested()
   @Type(() => ShippingMethodDto)
-  shippingMethod: ShippingMethodDto;
+  shipping_method: ShippingMethodDto;
 
   @ApiProperty({
     example: true,
@@ -164,5 +164,5 @@ export class CreateOrderDto {
   })
   @IsOptional()
   @IsBoolean()
-  useDefaultAddress?: boolean;
+  use_default_address?: boolean;
 }

@@ -15,25 +15,31 @@ export class OrderService {
     token: string,
   ): Promise<any> {
     // Validação da flag de endereço
-    if (!createOrderDto.useDefaultAddress) {
-      if (!createOrderDto.billingAddress) {
+    if (!createOrderDto.use_default_address) {
+      if (!createOrderDto.billing_address) {
         throw new BadRequestException(
-          'Billing address is required when useDefaultAddress is false or not provided',
+          'Billing address is required when use_default_address is false or not provided',
         );
       }
-      if (!createOrderDto.shippingAddress) {
+      if (!createOrderDto.shipping_address) {
         throw new BadRequestException(
-          'Shipping address is required when useDefaultAddress is false or not provided',
+          'Shipping address is required when use_default_address is false or not provided',
         );
       }
     }
 
+    console.log('Creating cart with token:', token);
     const cartId = await this.magentoService.createCart(token);
     if (!cartId) {
       throw new BadRequestException('Failed to create cart');
     }
+    console.log('Cart created with ID:', cartId);
+
+    // pequeno atraso para garantir que o carrinho seja reconhecido //
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     for (const item of createOrderDto.items) {
+      console.log('Adding item to cart:', item);
       const addItemResponse = await this.magentoService.addItemToCart(
         token,
         cartId,
@@ -43,12 +49,14 @@ export class OrderService {
       if (!addItemResponse) {
         throw new BadRequestException('Failed to add item to cart');
       }
+      console.log('Item added to cart:', addItemResponse);
     }
 
-    let billingAddress = createOrderDto.billingAddress;
-    let shippingAddress = createOrderDto.shippingAddress;
+    let billingAddress = createOrderDto.billing_address;
+    let shippingAddress = createOrderDto.shipping_address;
 
-    if (createOrderDto.useDefaultAddress) {
+    if (createOrderDto.use_default_address) {
+      console.log('Fetching user details with token:', token);
       const userDetails = await this.magentoService.getUserDetails(token);
       if (!userDetails.addresses || userDetails.addresses.length === 0) {
         throw new BadRequestException('No default addresses found for user.');
@@ -77,31 +85,36 @@ export class OrderService {
       throw new BadRequestException('Billing or shipping address is missing.');
     }
 
+    console.log('Setting shipping method with cart ID:', cartId);
     const setShippingMethodResponse =
       await this.magentoService.setShippingMethod(
         token,
-        cartId,
         billingAddress,
         shippingAddress,
-        createOrderDto.shippingMethod.methodCode,
-        createOrderDto.shippingMethod.carrierCode,
+        createOrderDto.shipping_method.method_code,
+        createOrderDto.shipping_method.carrier_code,
       );
     if (!setShippingMethodResponse) {
       throw new BadRequestException('Failed to set shipping method');
     }
+    console.log('Shipping method set:', setShippingMethodResponse);
 
+    console.log('Setting payment method with cart ID:', cartId);
     const setPaymentMethodResponse = await this.magentoService.setPaymentMethod(
       token,
-      { method: createOrderDto.paymentMethod.method },
+      { method: createOrderDto.payment_method.method },
     );
     if (!setPaymentMethodResponse) {
       throw new BadRequestException('Failed to set payment method');
     }
+    console.log('Payment method set:', setPaymentMethodResponse);
 
-    const order = await this.magentoService.placeOrder(token);
+    console.log('Placing order with cart ID:', cartId);
+    const order = await this.magentoService.placeOrder(token, cartId);
     if (!order) {
       throw new BadRequestException('Failed to place order');
     }
+    console.log('Order placed:', order);
 
     return order;
   }
