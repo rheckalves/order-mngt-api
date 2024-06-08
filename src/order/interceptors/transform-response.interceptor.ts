@@ -11,19 +11,10 @@ import { map } from 'rxjs/operators';
 export class TransformResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((response) => {
-        if (response?.data) {
-          return {
-            data: { ...response.data },
-            timestamp: response.timestamp || new Date().toISOString(),
-          };
-        }
-
-        return {
-          data: response,
-          timestamp: new Date().toISOString(),
-        };
-      }),
+      map((response) => ({
+        data: response,
+        timestamp: new Date().toISOString(),
+      })),
     );
   }
 }
