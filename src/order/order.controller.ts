@@ -5,11 +5,10 @@ import {
   Param,
   Post,
   Headers,
-  UnauthorizedException,
-  BadRequestException,
-  NotFoundException,
   Logger,
   UseInterceptors,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -22,11 +21,13 @@ import {
   ApiHeader,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthInterceptor } from 'src/interceptors/auth.interceptor';
+import { AuthValidationInterceptor } from './interceptors/auth-validation.interceptor';
+import { CreateOrderValidationInterceptor } from './interceptors/create-order-validation.interceptor';
+import { TransformResponseInterceptor } from './interceptors/transform-response.interceptor';
 
 @ApiTags('Orders')
 @ApiBearerAuth('access-token')
-@UseInterceptors(AuthInterceptor)
+@UseInterceptors(AuthValidationInterceptor, TransformResponseInterceptor)
 @Controller('orders')
 export class OrderController {
   private readonly logger = new Logger(OrderController.name);
@@ -42,28 +43,16 @@ export class OrderController {
   })
   @ApiResponse({ status: 400, description: 'Invalid order data provided.' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseInterceptors(CreateOrderValidationInterceptor)
   async createOrder(
     @Body() orderDto: CreateOrderDto,
     @Headers('Authorization') authorizationHeader: string,
   ) {
     this.logger.log(`Authorization header received: ${authorizationHeader}`);
-
-    if (!authorizationHeader) {
-      this.logger.error('Authorization header is missing');
-      throw new UnauthorizedException('Authorization header is missing');
-    }
-
-    const [bearer, token] = authorizationHeader.split(' ');
-    if (bearer !== 'Bearer' || !token) {
-      this.logger.error('Invalid authorization header');
-      throw new UnauthorizedException('Invalid authorization header');
-    }
+    const token = authorizationHeader.split(' ')[1];
 
     try {
       const order = await this.orderService.createOrder(orderDto, token);
-      if (!order) {
-        throw new BadRequestException('Failed to create order');
-      }
       return order;
     } catch (error) {
       this.logger.error(`Error creating order: ${error.message}`);
@@ -85,7 +74,6 @@ export class OrderController {
   @ApiResponse({
     status: 200,
     description: 'Order retrieved successfully.',
-    type: CreateOrderDto,
   })
   @ApiResponse({ status: 404, description: 'Order not found.' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -94,17 +82,7 @@ export class OrderController {
     @Headers('Authorization') authorizationHeader: string,
   ) {
     this.logger.log(`Authorization header received: ${authorizationHeader}`);
-
-    /*     if (!authorizationHeader) {
-      this.logger.error('Authorization header is missing');
-      throw new UnauthorizedException('Authorization header is missing');
-    } */
-
-    const [bearer, token] = authorizationHeader.split(' ');
-    /*     if (bearer !== 'Bearer' || !token) {
-      this.logger.error('Invalid authorization header');
-      throw new UnauthorizedException('Invalid authorization header');
-    } */
+    const token = authorizationHeader.split(' ')[1];
 
     try {
       const order = await this.orderService.getOrder(id, token);

@@ -9,12 +9,12 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Injectable()
-export class AuthInterceptor implements NestInterceptor {
+export class AuthValidationInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     console.log('Before...');
 
-    const authorizationHeader = context.switchToHttp().getRequest()
-      .headers.authorization;
+    const request = context.switchToHttp().getRequest();
+    const authorizationHeader = request.headers.authorization;
     if (!authorizationHeader) {
       console.log('Authorization header is missing');
       throw new UnauthorizedException('Authorization header is missing');
@@ -25,6 +25,8 @@ export class AuthInterceptor implements NestInterceptor {
       console.log('Invalid authorization header');
       throw new UnauthorizedException('Invalid authorization header');
     }
+
+    request.userToken = token; // Save token in request for further use
 
     const now = Date.now();
     return next
