@@ -4,17 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
-import {
-  APM_MIDDLEWARE,
-  ApmErrorInterceptor,
-  ApmHttpUserContextInterceptor,
-  initializeAPMAgent,
-} from 'elastic-apm-nest';
-
-initializeAPMAgent({
-  serviceName: process.env.ELASTIC_APM_SERVICE_NAME,
-  serverUrl: process.env.ELASTIC_APM_SERVER_URL,
-});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -70,14 +59,6 @@ async function bootstrap() {
       },
     },
   });
-
-  const apmMiddleware = app.get(APM_MIDDLEWARE);
-  const globalInterceptors = [
-    app.get(ApmHttpUserContextInterceptor),
-    app.get(ApmErrorInterceptor),
-  ];
-  app.useGlobalInterceptors(...globalInterceptors);
-  app.use(apmMiddleware);
 
   await app.listen(3002);
 
